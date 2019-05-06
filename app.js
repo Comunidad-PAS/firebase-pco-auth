@@ -89,7 +89,7 @@ app.get(OAUTH_REDIRECT_PATH, (req, res) => {
 
 function getUserData(bearerToken) {
   return new Promise((resolve, reject) => {
-    request('https://api.planningcenteronline.com/people/v2/me',{
+    request('https://api.planningcenteronline.com/people/v2/me?include=emails',{
       'auth': {
         'bearer': bearerToken,
       },
@@ -128,11 +128,12 @@ app.get(OAUTH_CALLBACK_PATH, async (req, res) => {
     const pcoId = body["data"]["id"];
     const pcoName = body["data"]["attributes"]["name"];
     const pcoProfilePic = body["data"]["attributes"]["avatar"];
+    const pcoEmail = body["included"][0]["type"] == "Email"?body["included"][0]["attributes"]["address"]:null
     if (body["meta"]["parent"]["id"] != config.app.pcoOrgId) {
       res.send("Unknown parent org!")
     }
     // Create a Firebase account and get the Custom Auth Token.
-    createFirebaseAccount(pcoId, pcoName, pcoProfilePic, accessToken).then(firebaseToken => {
+    createFirebaseAccount(pcoId, pcoName, pcoProfilePic, accessToken, pcoEmail).then(firebaseToken => {
           // Serve an HTML page that signs the user in and updates the user profile.
       res.redirect(config.app.loginRedirect + firebaseToken)
     });
@@ -183,7 +184,7 @@ app.get(OAUTH_CODE_EXCHANGE_PATH, (req, res) => {
  *
  * @returns {Promise<string>} The Firebase custom auth token in a promise.
  */
-function createFirebaseAccount(pcoId, displayName, photoURL, accessToken) {
+function createFirebaseAccount(pcoId, displayName, photoURL, accessToken, email) {
   // The UID we'll assign to the user.
   const uid = `pco:${pcoId}`;
 
@@ -201,8 +202,10 @@ function createFirebaseAccount(pcoId, displayName, photoURL, accessToken) {
       return admin.auth().createUser({
         uid: uid,
         displayName: displayName,
-        photoURL: photoURL
-      });
+        photoURL: photoURL,
+        email: email,
+        emailVerified: true
+      })
     }
     throw error;
   });
