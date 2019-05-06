@@ -1,0 +1,13 @@
+{
+  "pco": {
+    "clientId": "",
+    "clientSecret": ""
+  },
+  "firebase": {
+    "apiKey": ""
+  },
+  "app": {
+    "loginRedirect": "",
+    "pcoOrgId": ""
+  }
+}

@@ -1,0 +1,14 @@
+version: '3.5'
+
+services:
+  auth:
+    build: .
+    restart: unless-stopped
+    networks:
+      caddy_front:
+        aliases:
+          - pasmedia-auth
+
+networks:
+  caddy_front:
+      external: true

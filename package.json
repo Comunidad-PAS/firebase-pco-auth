@@ -1,0 +1,23 @@
+{
+  "name": "pco-firebase-auth",
+  "description": "Firebase auth with PCO",
+  "private": true,
+  "version": "1.0.0",
+  "engines": {
+    "node": "~4.2"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "monitor": "nodemon app.js",
+    "deploy": "gcloud app deploy"
+  },
+  "license": "Apache Version 2.0",
+  "author": "Stefano Gerli",
+  "dependencies": {
+    "cookie-parser": "^1.4.3",
+    "express": "^4.14.0",
+    "firebase-admin": "^4.0.0",
+    "request": "^2.88.0",
+    "simple-oauth2": "^1.0.0"
+  }
+}
