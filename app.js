@@ -188,10 +188,6 @@ function createFirebaseAccount(pcoId, displayName, photoURL, accessToken, email)
   // The UID we'll assign to the user.
   const uid = `pco:${pcoId}`;
 
-  // Save the access token to the Firebase Realtime Database.
-  const databaseTask = admin.database().ref(`/pcoAccessToken/${uid}`)
-      .set(accessToken);
-
   // Create or update the user account.
   const userCreationTask = admin.auth().updateUser(uid, {
     displayName: displayName,
@@ -199,19 +195,42 @@ function createFirebaseAccount(pcoId, displayName, photoURL, accessToken, email)
   }).catch(error => {
     // If user does not exists we create it.
     if (error.code === 'auth/user-not-found') {
+    // Create the user in the db
+    admin.database().ref(`/users/${uid}`)
+    .set({
+      public:  {
+        about: {
+          userName: displayName,
+          profileImage: photoURL,
+          phoneNumber: '',
+          biography: '',
+          tag: ''
+        }
+      },
+      private:  {
+        admin: false,
+        visibilityGroup: 'normal'
+      }
+    });
       return admin.auth().createUser({
         uid: uid,
         displayName: displayName,
         photoURL: photoURL,
         email: email,
         emailVerified: true
+      }).catch(error => {
+        console.error("An error occurred while creating a user:\n" + error)
       })
     }
     throw error;
   });
 
+  // Save the access token to the Firebase Realtime Database.
+  const databaseTaskSet = admin.database().ref(`/users/${uid}/private/pcoAccessToken`)
+      .set(accessToken);
+
   // Wait for all async task to complete then generate and return a custom auth token.
-  return Promise.all([userCreationTask, databaseTask]).then(() => {
+  return Promise.all([userCreationTask, databaseTaskSet]).then(() => {
     // Create a Firebase custom auth token.
     const token = admin.auth().createCustomToken(uid);
     //console.log('Created Custom token for UID "', uid, '" Token:', token);
