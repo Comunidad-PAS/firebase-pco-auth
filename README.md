@@ -51,4 +51,4 @@ You can deploy the sample's web app and server on App Engine Flex. For this:
 
 ## License
 
-© Google, 2016. Licensed under an [Apache-2](../LICENSE) license.
+© Comunidad PAS, 2020 and Google, 2016. Licensed under an [Apache-2](../LICENSE) license.
